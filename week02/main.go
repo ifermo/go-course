@@ -39,8 +39,10 @@ func (dao *Dao) QueryArticleById(id int64) (*Article, error) {
 	err := row.Scan(&art.Id, &art.Content, &art.Author)
 	if err == sql.ErrNoRows {
 		return nil, errors.Wrap(errors.New("article not found"), err.Error())
+	} else if err != nil {
+		return nil, errors.Wrap(errors.New("unknown error"), err.Error())
 	}
-	return art, errors.Wrap(errors.New("unknown error"), err.Error())
+	return art, nil
 }
 
 func initDB() *sql.DB {
