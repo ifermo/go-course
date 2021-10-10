@@ -7,13 +7,21 @@ import (
 	"time"
 )
 
+var (
+	NotFound = errors.New("data not found")
+)
+
 func main() {
 	dao := &Dao{
 		db: initDB(),
 	}
 	art, err := dao.QueryArticleById(100)
 	if err != nil {
-		fmt.Println(err)
+		if errors.Is(err, NotFound) {
+			fmt.Println("article not found")
+		} else {
+			fmt.Println(err)
+		}
 		return
 	}
 	fmt.Println(art)
@@ -38,7 +46,7 @@ func (dao *Dao) QueryArticleById(id int64) (*Article, error) {
 	row := dao.db.QueryRow("select id,content,author from article where id=?", id)
 	err := row.Scan(&art.Id, &art.Content, &art.Author)
 	if err == sql.ErrNoRows {
-		return nil, errors.Wrap(errors.New("article not found"), err.Error())
+		return nil, errors.Wrap(NotFound, err.Error())
 	} else if err != nil {
 		return nil, errors.Wrap(errors.New("unknown error"), err.Error())
 	}
