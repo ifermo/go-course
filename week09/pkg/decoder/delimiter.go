@@ -2,11 +2,12 @@ package decoder
 
 import (
 	"errors"
+	"io"
 	"net"
 )
 
 type DelimiterBasedFrameDecoder struct {
-	conn      net.Conn
+	reader    io.Reader
 	maxLength uint32
 	delimiter []byte
 	buf       []byte
@@ -17,7 +18,7 @@ func (decoder *DelimiterBasedFrameDecoder) Read() ([]byte, error) {
 	data := make([]byte, 0, length)
 	data = append(decoder.buf)
 	for i := 0; len(data) < length; {
-		size, err := decoder.conn.Read(data[i:length])
+		size, err := decoder.reader.Read(data[i:length])
 		if err != nil {
 			return nil, err
 		}
@@ -51,13 +52,13 @@ func (decoder *DelimiterBasedFrameDecoder) delimiterIndex(data []byte) int {
 	return -1
 }
 
-func NewDelimiterBasedFrameDecoder(conn net.Conn, maxLength uint32, delimiter string) (FrameDecoder, error) {
-	if delimiter != "" {
-		return nil, errors.New("delimiter must be non-empty")
+func NewDelimiterBasedFrameDecoder(conn net.Conn, maxLength uint32, delimiter string) FrameDecoder {
+	if delimiter == "" {
+		panic("delimiter must be non-empty")
 	}
 	return &DelimiterBasedFrameDecoder{
-		conn:      conn,
+		reader:    conn,
 		delimiter: []byte(delimiter),
 		maxLength: maxLength,
-	}, nil
+	}
 }
