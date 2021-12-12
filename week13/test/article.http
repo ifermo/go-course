@@ -1,0 +1,16 @@
+###
+POST http://127.0.0.1:8000/v1/article HTTP/1.1
+content-type: application/json
+
+{
+    "title":"Hello World",
+    "content":"你好，世界"
+}
+
+###
+GET http://127.0.0.1:8000/v1/article HTTP/1.1
+content-type: application/json
+
+###
+DELETE http://127.0.0.1:8000/v1/article/2 HTTP/1.1
+content-type: application/json
